@@ -1,0 +1,137 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2580
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fmodern\fcharset0 Courier-Bold;\f2\fmodern\fcharset0 Courier;
+\f3\fmodern\fcharset0 Courier-Oblique;}
+{\colortbl;\red255\green255\blue255;\red15\green112\blue1;\red255\green255\blue255;\red0\green0\blue0;
+\red0\green0\blue255;\red169\green14\blue26;\red13\green103\blue102;\red151\green0\blue255;\red16\green121\blue2;
+}
+{\*\expandedcolortbl;;\cssrgb\c0\c50196\c0;\cssrgb\c100000\c100000\c100000;\cssrgb\c0\c0\c0;
+\cssrgb\c0\c0\c100000;\cssrgb\c72941\c12941\c12941;\cssrgb\c0\c47451\c47451;\cssrgb\c66667\c13333\c100000;\cssrgb\c0\c53333\c0;
+}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 import re                                  # library for regular expression operations\
+import string                              # for string operations\
+\
+from nltk.corpus import stopwords          # module for stop words that come with NLTK\
+from nltk.stem import PorterStemmer        # module for stemming\
+from nltk.tokenize import TweetTokenizer \
+\
+\
+1. Removing https\
+\
+print('\\033[92m' + tweet)\
+print('\\033[94m')\
+\
+# remove old style retweet text "RT"\
+tweet2 = re.sub(r'^RT[\\s]+', '', tweet)\
+\
+# remove hyperlinks\
+tweet2 = re.sub(r'https?://[^\\s\\n\\r]+', '', tweet2)\
+\
+# remove hashtags\
+# only removing the hash # sign from the word\
+tweet2 = re.sub(r'#', '', tweet2)\
+\
+print(tweet2)\
+\
+2. Tokenizer\
+# instantiate tokenizer class\
+tokenizer = TweetTokenizer(preserve_case=False, strip_handles=True,\
+                               reduce_len=True)\
+\
+# tokenize tweets\
+tweet_tokens = tokenizer.tokenize(tweet2)\
+\
+3. Stop word and punctuation\
+stopwords_english = stopwords.words('english') \
+\
+print('Stop words\\n')\
+print(stopwords_english)\
+\
+print('\\nPunctuation\\n')\
+print(string.punctuation)\
+\
+\
+tweets_clean = []\
+\
+for word in tweet_tokens: # Go through every word in your tokens list\
+    if (word not in stopwords_english and  # remove stopwords\
+        word not in string.punctuation):  # remove punctuation\
+        tweets_clean.append(word)\
+\
+print('removed stop words and punctuation:')\
+print(tweets_clean) \
+\
+4. Frequency calculation\
+\
+\pard\pardeftab720\partightenfactor0
+
+\f1\b\fs28 \cf2 \cb3 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 def
+\f2\b0 \cf4 \strokec4  \cf5 \strokec5 build_freqs\cf4 \strokec4 (tweets, ys):\
+    \cf6 \strokec6 """Build frequencies.\cf4 \strokec4 \
+\cf6 \strokec6     Input:\cf4 \strokec4 \
+\cf6 \strokec6         tweets: a list of tweets\cf4 \strokec4 \
+\cf6 \strokec6         ys: an m x 1 array with the sentiment label of each tweet\cf4 \strokec4 \
+\cf6 \strokec6             (either 0 or 1)\cf4 \strokec4 \
+\cf6 \strokec6     Output:\cf4 \strokec4 \
+\cf6 \strokec6         freqs: a dictionary mapping each (word, sentiment) pair to its\cf4 \strokec4 \
+\cf6 \strokec6         frequency\cf4 \strokec4 \
+\cf6 \strokec6     """\cf4 \strokec4 \
+    
+\f3\i \cf7 \strokec7 # Convert np array to list since zip needs an iterable.
+\f2\i0 \cf4 \strokec4 \
+    
+\f3\i \cf7 \strokec7 # The squeeze is necessary or the list ends up with one element.
+\f2\i0 \cf4 \strokec4 \
+    
+\f3\i \cf7 \strokec7 # Also note that this is just a NOP if ys is already a list.
+\f2\i0 \cf4 \strokec4 \
+    yslist 
+\f1\b \cf8 \strokec8 =
+\f2\b0 \cf4 \strokec4  np.squeeze(ys).tolist()\
+\
+    
+\f3\i \cf7 \strokec7 # Start with an empty dictionary and populate it by looping over all tweets
+\f2\i0 \cf4 \strokec4 \
+    
+\f3\i \cf7 \strokec7 # and over all processed words in each tweet.
+\f2\i0 \cf4 \strokec4 \
+    freqs 
+\f1\b \cf8 \strokec8 =
+\f2\b0 \cf4 \strokec4  \{\}\
+    
+\f1\b \cf2 \strokec2 for
+\f2\b0 \cf4 \strokec4  y, tweet 
+\f1\b \cf2 \strokec2 in
+\f2\b0 \cf4 \strokec4  \cf2 \strokec2 zip\cf4 \strokec4 (yslist, tweets):\
+        
+\f1\b \cf2 \strokec2 for
+\f2\b0 \cf4 \strokec4  word 
+\f1\b \cf2 \strokec2 in
+\f2\b0 \cf4 \strokec4  process_tweet(tweet):\
+            pair 
+\f1\b \cf8 \strokec8 =
+\f2\b0 \cf4 \strokec4  (word, y)\
+            
+\f1\b \cf2 \strokec2 if
+\f2\b0 \cf4 \strokec4  pair 
+\f1\b \cf2 \strokec2 in
+\f2\b0 \cf4 \strokec4  freqs:\
+                freqs[pair] 
+\f1\b \cf8 \strokec8 +=
+\f2\b0 \cf4 \strokec4  \cf9 \strokec9 1\cf4 \strokec4 \
+            
+\f1\b \cf2 \strokec2 else
+\f2\b0 \cf4 \strokec4 :\
+                freqs[pair] 
+\f1\b \cf8 \strokec8 =
+\f2\b0 \cf4 \strokec4  \cf9 \strokec9 1\cf4 \strokec4     \
+    
+\f1\b \cf2 \strokec2 return
+\f2\b0 \cf4 \strokec4  freqs\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 \cb1 \kerning1\expnd0\expndtw0 \outl0\strokewidth0 \
+}
